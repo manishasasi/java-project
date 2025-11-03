@@ -5,8 +5,8 @@ FROM openjdk:21-slim
 WORKDIR /app
 
 # 3. Copy your .jar file from host to container
-COPY . HelloDockerJava-1.0.jar app.jar
-
+COPY target/*.jar app.jar
 # 4. Run the jar file when container starts
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
 
