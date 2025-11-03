@@ -15,7 +15,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>HelloWorld</mainClass>
+                            <mainClass>HelloDockerJava</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
