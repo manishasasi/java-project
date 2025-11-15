@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    environment {
+        // Optional: set JAVA_HOME or MAVEN_HOME if needed
+        MAVEN_HOME = "/usr/share/maven"
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Replace with your repo URL
+                git branch: 'main', url: 'https://github.com/manishasasi/java-project.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                // Clean and build the project
+                sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests"
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                // Archive the JARs for later use
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed. Check logs.'
+        }
+    }
+}
