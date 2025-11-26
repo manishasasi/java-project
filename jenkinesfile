@@ -1,9 +1,7 @@
 pipeline {
     agent any
-
-    environment {
-        // Optional: set JAVA_HOME or MAVEN_HOME if needed
-        MAVEN_HOME = "/usr/share/maven"
+tools {
+        maven "maven3"
     }
 
     stages {
