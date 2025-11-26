@@ -25,7 +25,19 @@ tools {
                 sh 'mvn test'
             }
         }
+        stage('Package') {
+            steps {
+                echo 'Packaging the project...'
+                sh 'mvn clean package -DskipTests'
+            }
+        }
 
+        stage('Install') {
+            steps {
+                echo 'Installing the artifact into local Maven repo...'
+                sh 'mvn install -DskipTests'
+            }
+        }
         stage('Archive Artifacts') {
             steps {
                 // Archive the JARs for later use
