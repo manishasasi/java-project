@@ -3,49 +3,32 @@ pipeline {
 tools {
         maven "maven3"
     }
-
-    stages {
-        stage('Clone Repository') {
-            steps {
-                // Replace with your repo URL
-                git branch: 'main', url: 'https://github.com/manishasasi/java-project.git'
-            }
-        }
-
-        stage('Build with Maven') {
-            steps {
-                // Clean and build the project
-                sh "${MAVEN_HOME}/bin/mvn clean package -DskipTests"
-            }
-        }
-
         stage('Build & Test') {
                 steps {
                 echo 'Running unit tests...'
                 sh 'mvn test'
             }
         }
-        stage('Package') {
+        stage('Package & Install') {
             steps {
                 echo 'Packaging the project...'
-                sh 'mvn clean package -DskipTests'
+                sh '''
+                   mvn package
+                   mvn install
+                '''
             }
         }
-
-        stage('Install') {
-            steps {
-                echo 'Installing the artifact into local Maven repo...'
-                sh 'mvn install -DskipTests'
+        stage('Static Code Analysis') {
+        steps {
+            timeout(time: 4, unit: 'MINUTES') {
+            echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('sonarqube-server') {
+                sh '''
+                   mvn sonar:sonar \
+                '''
+                    }
+                }   
             }
-        }
-        stage('Static Analysis') {
-            steps {
-                echo 'Running static analysis...'
-                // Run Checkstyle, PMD, and SpotBugs
-                sh 'mvn checkstyle:check pmd:check spotbugs:check'
-            }
-        }
-
         stage('SonarQube Analysis') {
                 steps {
                     echo 'Running SonarQube analysis...'
@@ -54,24 +37,18 @@ tools {
                 }
             }
         }
-
         stage('Quality Gate Check') {
-            steps {
-                echo 'Checking SonarQube quality gate...'
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
+                steps {
+                    echo 'Checking SonarQube quality gate...'
+                    script {
+                        def qualityGate = waitForQualityGate()
+                        if (qualityGate.status != 'OK') {
+                            error "Pipeline aborted due to SonarQube quality gate failure: ${qualityGate.status}"
+                        }
+                    }
                 }
             }
-        }
-
-        stage('Archive Artifacts') {
-            steps {
-                // Archive the JARs for later use
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            }
-        }
-    }
-
+        
     post {
         success {
             echo 'Build completed successfully!'
