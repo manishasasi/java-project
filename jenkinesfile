@@ -50,9 +50,9 @@ pipeline {
                 echo 'Uploading artifact to Nexus repository...'
                 nexusArtifactUploader artifacts: [
                     [
-                        artifactId: 'java-project-demo',
+                        artifactId: 'SimpleJavaProject',
                         classifier: '',
-                        file: 'java-ci-pipeline/target/SimpleJavaProject-1.0.jar',
+                        file: 'target/SimpleJavaProject-1.0.jar',
                         type: 'jar'
                     ]
                 ],
