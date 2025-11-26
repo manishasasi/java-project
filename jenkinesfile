@@ -45,6 +45,18 @@ tools {
                 sh 'mvn checkstyle:check pmd:check spotbugs:check'
             }
         }
+
+        stage('Quality Gate Check') {
+            steps {
+                echo 'Checking SonarQube quality gate...'
+                script {
+                    def qualityGate = waitForQualityGate()
+                    if (qualityGate.status != 'OK') {
+                        error "Pipeline aborted due to SonarQube quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
+        }
         stage('Archive Artifacts') {
             steps {
                 // Archive the JARs for later use
