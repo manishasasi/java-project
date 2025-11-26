@@ -44,10 +44,10 @@ tools {
                         def qualityGate = waitForQualityGate()
                         if (qualityGate.status != 'OK') {
                             error "Pipeline aborted due to SonarQube quality gate failure: ${qualityGate.status}"
-                        }
-                    }
+                     }
                 }
             }
+        }
         
     post {
         success {
@@ -56,5 +56,5 @@ tools {
         failure {
             echo 'Build failed. Check logs.'
         }
-    }
+}
 }
