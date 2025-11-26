@@ -52,7 +52,7 @@ pipeline {
                     [
                         artifactId: 'java-project-demo',
                         classifier: '',
-                        file: 'java-project/target/HelloDockerJava-1.0.jar',
+                        file: 'java-ci-pipeline/target/SimpleJavaProject-1.0.jar',
                         type: 'jar'
                     ]
                 ],
