@@ -19,7 +19,7 @@
     <!-- ✅ Distribution management must be at project level -->
     <distributionManagement>
         <repository>
-            <id>spring-boot-app</id>
+            <id>simple-java-project</id>
             <url>http://13.215.120.233:8081/repository/java-project/</url>
         </repository>
     </distributionManagement>
