@@ -5,6 +5,15 @@ pipeline {
         maven "maven3"
     }
 
+    environment { 
+        NEXUS_URL = '13.215.120.233:8081'
+        NEXUS_REPO = 'java-project'
+        NEXUS_CREDENTIALS_ID = 'nexus-credentials'
+        ARTIFACT_VERSION = "${BUILD_NUMBER}"
+        DOCKER_IMAGE = "manisha/java-project:${BUILD_NUMBER}"
+        REGISTRY_CREDENTIALS = credentials('docker-cred')
+    }
+    
     stages {
         stage('Clean Workspace') {
             steps {
@@ -37,8 +46,28 @@ pipeline {
             }
         }
 
+        stage('Uploading to Nexus') {
+            steps {
+                echo 'Uploading artifact to Nexus repository...'
+                nexusArtifactUploader artifacts: [
+                    [
+                        artifactId: 'java-project-demo',
+                        classifier: '',
+                        file: 'java-project/target/HelloDockerJava-1.0.jar',
+                        type: 'jar'
+                    ]
+                ],
+                credentialsId: "${env.NEXUS_CREDENTIALS_ID}",
+                groupId: 'com.manda',
+                nexusUrl: "${env.NEXUS_URL}",
+                nexusVersion: 'nexus3',
+                protocol: 'http',
+                repository: "${env.NEXUS_REPO}",
+                version: "${env.ARTIFACT_VERSION}"
+            }
+        }
     }
-
+    
     post {
         success {
             echo 'Build completed successfully!'
