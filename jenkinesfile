@@ -6,6 +6,20 @@ pipeline {
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                echo "Cleaning workspace..."
+                cleanWs()
+            }
+        }
+
+        stage('Git Checkout') {
+            steps {
+                echo "Checking out code from Git..."
+                git branch: 'main', url: 'https://github.com/sreeram7/CI-CD-Pipeline.git'
+            }
+        }
+
         stage('Build & Test') {
             steps {
                 echo 'Running unit tests...'
@@ -31,7 +45,7 @@ pipeline {
                 }
             }
         }
-
+    }
 
     post {
         success {
