@@ -88,7 +88,6 @@ pipeline {
             steps {
                 echo 'Scanning Docker image using Trivy...'
                 sh '''
-				   cd java-project
                    trivy image ${DOCKER_IMAGE} > trivyimage.txt
                 '''
             }
