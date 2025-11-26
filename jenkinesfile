@@ -20,15 +20,12 @@ tools {
         }
 
         stage('Build & Test') {
-            steps {
-                echo 'Building the project...'
-                sh '''
-                   cd spring-boot-app
-                   mvn clean compile
-                   mvn test
-                '''
+                steps {
+                echo 'Running unit tests...'
+                sh 'mvn test'
             }
-       }
+        }
+
         stage('Archive Artifacts') {
             steps {
                 // Archive the JARs for later use
