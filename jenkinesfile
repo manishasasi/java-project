@@ -38,6 +38,13 @@ tools {
                 sh 'mvn install -DskipTests'
             }
         }
+        stage('Static Analysis') {
+            steps {
+                echo 'Running static analysis...'
+                // Run Checkstyle, PMD, and SpotBugs
+                sh 'mvn checkstyle:check pmd:check spotbugs:check'
+            }
+        }
         stage('Archive Artifacts') {
             steps {
                 // Archive the JARs for later use
