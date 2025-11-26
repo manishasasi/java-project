@@ -1,14 +1,18 @@
 pipeline {
     agent any
-tools {
+
+    tools {
         maven "maven3"
     }
+
+    stages {
         stage('Build & Test') {
-                steps {
+            steps {
                 echo 'Running unit tests...'
                 sh 'mvn test'
             }
         }
+
         stage('Package & Install') {
             steps {
                 echo 'Packaging the project...'
@@ -18,37 +22,26 @@ tools {
                 '''
             }
         }
-        stage('Static Code Analysis') {
-        steps {
-            timeout(time: 4, unit: 'MINUTES') {
-            echo 'Running SonarQube analysis...'
-                withSonarQubeEnv('sonarqube-server') {
-                sh '''
-                   mvn sonar:sonar \
-                '''
-                    }
-                }   
-            }
+
         stage('SonarQube Analysis') {
-                steps {
-                    echo 'Running SonarQube analysis...'
-                    withSonarQubeEnv('sonarqube-server') {   // must match the name configured in Jenkins
+            steps {
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('sonarqube-server') {
                     sh 'mvn sonar:sonar'
                 }
             }
         }
+
         stage('Quality Gate Check') {
-                steps {
-                    echo 'Checking SonarQube quality gate...'
-                    script {
-                        def qualityGate = waitForQualityGate()
-                        if (qualityGate.status != 'OK') {
-                            error "Pipeline aborted due to SonarQube quality gate failure: ${qualityGate.status}"
-                     }
+            steps {
+                echo 'Checking SonarQube quality gate...'
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
-        
+    }
+
     post {
         success {
             echo 'Build completed successfully!'
@@ -56,5 +49,5 @@ tools {
         failure {
             echo 'Build failed. Check logs.'
         }
-}
+    }
 }
