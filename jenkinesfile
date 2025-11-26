@@ -71,6 +71,20 @@ pipeline {
             }
         }
 
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                sh """
+                echo "User: \$(whoami)"
+                id
+                groups
+
+                docker build -t ${DOCKER_IMAGE} .
+                """
+            }
+    
+        }
+		
     }
     
     post {
