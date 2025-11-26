@@ -11,7 +11,6 @@ pipeline {
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
         DOCKER_IMAGE = "manisha/java-project:${BUILD_NUMBER}"
-        REGISTRY_CREDENTIALS = credentials('docker-cred')
     }
     
     stages {
