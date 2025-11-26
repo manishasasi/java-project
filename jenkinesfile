@@ -16,7 +16,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo "Checking out code from Git..."
-                git branch: 'main', url: 'https://github.com/sreeram7/CI-CD-Pipeline.git'
+                git branch: 'main', url: 'https://github.com/manishasasi/java-project.git'
             }
         }
 
