@@ -1,5 +1,5 @@
 # 1. Base image with Java runtime
-FROM openjdk:21-slim
+FROM eclipse-temurin:21-jdk
 
 # 2. Create working directory inside container
 WORKDIR /app
