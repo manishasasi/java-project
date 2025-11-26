@@ -16,6 +16,14 @@
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
+    <!-- ✅ Distribution management must be at project level -->
+    <distributionManagement>
+        <repository>
+            <id>spring-boot-app</id>
+            <url>http://13.215.120.233:8081/repository/java-project/</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <!-- Compiler plugin -->
