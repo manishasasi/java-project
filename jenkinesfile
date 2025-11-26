@@ -46,17 +46,24 @@ tools {
             }
         }
 
-        stage('Quality Gate Check') {
-            steps {
-                echo 'Checking SonarQube quality gate...'
-                script {
-                    def qualityGate = waitForQualityGate()
-                    if (qualityGate.status != 'OK') {
-                        error "Pipeline aborted due to SonarQube quality gate failure: ${qualityGate.status}"
-                    }
+        stage('SonarQube Analysis') {
+                steps {
+                    echo 'Running SonarQube analysis...'
+                    withSonarQubeEnv('sonarqube-server') {   // must match the name configured in Jenkins
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
+
+        stage('Quality Gate Check') {
+            steps {
+                echo 'Checking SonarQube quality gate...'
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Archive Artifacts') {
             steps {
                 // Archive the JARs for later use
