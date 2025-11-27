@@ -10,7 +10,7 @@ pipeline {
         NEXUS_REPO = 'java-project'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
-        DOCKER_IMAGE = "manisha/java-project:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "manishasasi5/java-project:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('jenkins-push')
     }
     
