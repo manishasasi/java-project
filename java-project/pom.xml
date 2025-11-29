@@ -99,7 +99,7 @@
            <configuration>
              <archive>
                <manifest>
-                 <mainClass>com.manisha.Main</mainClass> <!-- Replace with your actual main class -->
+                 <mainClass>com.manisha.HelloWorld</mainClass> <!-- Replace with your actual main class -->
                </manifest>
              </archive>
            </configuration>
