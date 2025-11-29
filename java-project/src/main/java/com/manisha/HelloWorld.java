@@ -1,8 +1,8 @@
+package com.manisha;
+
 import com.sun.net.httpserver.HttpServer;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-
-package com.manisha;
 
 public class HelloWorld {
     public static void main(String[] args) throws Exception {
