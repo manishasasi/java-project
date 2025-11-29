@@ -31,8 +31,12 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                echo 'Running unit tests...'
-                sh 'mvn test'
+                echo 'Building the project...'
+                sh '''
+                   cd java-project
+                   mvn clean compile
+                   mvn test
+                '''
             }
         }
 
@@ -40,6 +44,7 @@ pipeline {
             steps {
                 echo 'Packaging the project...'
                 sh '''
+				   cd java-project
                    mvn package
                    mvn install
                 '''
@@ -53,7 +58,7 @@ pipeline {
                     [
                         artifactId: 'SimpleJavaProject',
                         classifier: '',
-                        file: 'target/SimpleJavaProject-1.0.jar',
+                        file: 'java-project/target/SimpleJavaProject-1.0.jar',
                         type: 'jar'
                     ]
                 ],
@@ -81,6 +86,7 @@ pipeline {
                 id
                 groups
 
+				cd java-project
                 docker build -t ${DOCKER_IMAGE} .
                 """
             }
@@ -130,7 +136,7 @@ pipeline {
                         git config user.email "manishaasha5@gmail.com"
                         git config user.name "manishasasi"
 						PREVIOUS_BUILD_NUMBER=\$((BUILD_NUMBER - 1))
-                        sed -i "s|manishasasi5/java-project:\${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" deployment.yml
+                        sed -i "s|manishasasi5/java-project:\${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
                         git pull origin main
                         git add .
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
