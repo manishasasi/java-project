@@ -132,9 +132,9 @@ pipeline {
         }
         
         stage('Update Deployment File') {
-    environment {
-        GIT_REPO_NAME = "java-project"
-        GIT_USER_NAME = "manishasasi"
+            environment {
+                GIT_REPO_NAME = "java-project"
+                GIT_USER_NAME = "manishasasi"
     }
     steps {
         withCredentials([usernamePassword(credentialsId: 'git1',
@@ -142,7 +142,14 @@ pipeline {
                                           passwordVariable: 'GIT_TOKEN')]) {
             sh '''
                 echo "Update Deployment File..."
+                echo "WORKSPACE is: $WORKSPACE"
                 cd "$WORKSPACE"
+
+                if [ ! -f .git/HEAD ]; then
+                    echo "ERROR: .git/HEAD not found. Aborting."
+                    exit 1
+                fi
+
                 git config user.email "manishaasha5@gmail.com"
                 git config user.name "manishasasi"
 
@@ -159,6 +166,7 @@ pipeline {
         }
     }
 }
+
 
 
         stage('Remove Local Docker Image') {
