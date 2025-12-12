@@ -156,7 +156,7 @@ pipeline {
                 PREVIOUS_BUILD_NUMBER=$((BUILD_NUMBER - 1))
                 sed -i "s|manishasasi5/java-project:${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
 
-                git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/$GIT_USER_NAME/$GIT_REPO_NAME.git HEAD:main
+                git push https://\$GIT_USER:\$GIT_TOKEN@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                 git checkout -B main origin/main
                 git pull origin main
                 git add .
