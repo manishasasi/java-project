@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment { 
-        NEXUS_URL = '13.215.120.233:8081'
+        NEXUS_URL = '18.142.104.101:8081'
         NEXUS_REPO = 'java-project'
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
