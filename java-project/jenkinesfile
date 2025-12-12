@@ -140,29 +140,17 @@ pipeline {
         withCredentials([usernamePassword(credentialsId: 'git1',
                                           usernameVariable: 'GIT_USER',
                                           passwordVariable: 'GIT_TOKEN')]) {
-            sh '''
-                echo "Update Deployment File..."
-                echo "WORKSPACE is: $WORKSPACE"
-                cd "$WORKSPACE"
-
-                if [ ! -f .git/HEAD ]; then
-                    echo "ERROR: .git/HEAD not found. Aborting."
-                    exit 1
-                fi
-
-                git config user.email "manishaasha5@gmail.com"
-                git config user.name "manishasasi"
-
-                PREVIOUS_BUILD_NUMBER=$((BUILD_NUMBER - 1))
-                sed -i "s|manishasasi5/java-project:${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
-
-                git push https://\$GIT_USER:\$GIT_TOKEN@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                git checkout -B main origin/main
-                git pull origin main
-                git add .
-                git commit -m "Update deployment image to version $BUILD_NUMBER" || echo "No changes to commit"
-                git push origin main
-            '''
+                 sh """
+                        echo 'Update Deployment File...'
+                        git config user.email "manishaasha5@gmail.com"
+                        git config user.name "manishasasi"
+						PREVIOUS_BUILD_NUMBER=\$((BUILD_NUMBER - 1))
+                        sed -i "s|manishasasi5/java-project:\${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
+                        git pull origin main
+                        git add .
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
+                        git push https://\$GIT_USER:\$GIT_TOKEN@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+                    """
         }
     }
 }
