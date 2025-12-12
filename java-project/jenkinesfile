@@ -129,7 +129,7 @@ pipeline {
                 GIT_USER_NAME = "manishasasi"
             }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'git', usernameVariable: 'GIT_USER', 
+                withCredentials([usernamePassword(credentialsId: 'git1', usernameVariable: 'GIT_USER', 
                 passwordVariable: 'GIT_TOKEN')]) {
                     sh """
                         echo 'Update Deployment File...'
