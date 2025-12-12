@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: java-project
-          image: manishasasi5/java-project:75
+          image: manishasasi5/java-project:8
           ports:
             - containerPort: 8080
