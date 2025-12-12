@@ -139,15 +139,14 @@ pipeline {
                                           passwordVariable: 'GIT_TOKEN')]) {
             sh '''
                 echo "Update Deployment File..."
+                cd "$WORKSPACE"
                 git config user.email "manishaasha5@gmail.com"
                 git config user.name "manishasasi"
 
                 PREVIOUS_BUILD_NUMBER=$((BUILD_NUMBER - 1))
                 sed -i "s|manishasasi5/java-project:${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
 
-                # Reset remote URL to include credentials
                 git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/$GIT_USER_NAME/$GIT_REPO_NAME.git
-
                 git pull origin main
                 git add .
                 git commit -m "Update deployment image to version $BUILD_NUMBER" || echo "No changes to commit"
@@ -156,7 +155,6 @@ pipeline {
         }
     }
 }
-
 
         stage('Remove Local Docker Image') {
             steps {
