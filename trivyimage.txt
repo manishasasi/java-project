@@ -1,5 +1,5 @@
 
-manishasasi5/java-project:25 (ubuntu 24.04)
+manishasasi5/java-project:26 (ubuntu 24.04)
 ===========================================
 Total: 0 (HIGH: 0, CRITICAL: 0)
 
