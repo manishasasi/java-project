@@ -24,10 +24,11 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo "Checking out code from Git..."
-                git branch: 'main', url: 'https://github.com/manishasasi/java-project.git'
+                git branch: 'main',
+                    url: 'https://github.com/manishasasi/java-project.git',
+                    credentialsId: 'git1'
             }
         }
-
         stage('Build & Test') {
             steps {
                 echo 'Building the project...'
