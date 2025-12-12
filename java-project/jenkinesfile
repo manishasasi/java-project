@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     tools {
+        git "Default"
         maven "maven3"
     }
 
@@ -11,7 +12,6 @@ pipeline {
         NEXUS_CREDENTIALS_ID = 'nexus-credentials'
         ARTIFACT_VERSION = "${BUILD_NUMBER}"
         DOCKER_IMAGE = "manishasasi5/java-project:${BUILD_NUMBER}"
-        REGISTRY_CREDENTIALS = credentials('docker-cred')
     }
     
     stages {
@@ -23,11 +23,15 @@ pipeline {
         }
 
         stage('Git Checkout') {
-            steps {
-                echo "Checking out code from Git..."
-                git branch: 'main', url: 'https://github.com/manishasasi/java-project.git'
-            }
+    steps {
+        dir("${WORKSPACE}") {
+            git branch: 'main',
+                url: 'https://github.com/manishasasi/java-project.git',
+                credentialsId: 'git1'
         }
+        sh 'git checkout -B main origin/main'
+    }
+}
 
         stage('Build & Test') {
             steps {
@@ -44,7 +48,7 @@ pipeline {
             steps {
                 echo 'Packaging the project...'
                 sh '''
-				   cd java-project
+                   cd java-project
                    mvn package
                    mvn install
                 '''
@@ -81,14 +85,14 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
-                sh """
-                echo "User: \$(whoami)"
-                id
-                groups
+                sh '''
+                   echo "User: $(whoami)"
+                   id
+                   groups
 
-				cd java-project
-                docker build -t ${DOCKER_IMAGE} .
-                """
+                   cd java-project
+                   docker build -t $DOCKER_IMAGE .
+                '''
             }
         }
 
@@ -96,7 +100,7 @@ pipeline {
             steps {
                 echo 'Scanning Docker image using Trivy...'
                 sh '''
-                    trivy image --severity HIGH,CRITICAL --exit-code 1 ${DOCKER_IMAGE} > trivyimage.txt
+                    trivy image --severity HIGH,CRITICAL --exit-code 1 $DOCKER_IMAGE > trivyimage.txt
                 '''
             }
             post {
@@ -107,52 +111,69 @@ pipeline {
         }
 
         stage('Push Image') {
-    when {
-        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+            steps {
+                echo 'Pushing Docker image to registry...'
+                withCredentials([usernamePassword(credentialsId: 'docker-cred',
+                                                  usernameVariable: 'DOCKER_USER',
+                                                  passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $DOCKER_IMAGE
+                    '''
+                }
+            }
+        }
+
+        stage('Cleanup Trivy Cache') {
+            steps {
+                echo 'Cleaning up Trivy cache...'
+                sh 'trivy clean --cache || true'
+            }                                                        
+        }
+        
+        stage('Update Deployment File') {
+            environment {
+                GIT_REPO_NAME = "java-project"
+                GIT_USER_NAME = "manishasasi"
     }
     steps {
-        script {
-            docker.withRegistry('https://index.docker.io/v1/', 'docker-creds') {
-                docker.image("manishasasi5/java-project:${BUILD_NUMBER}").push()
-            }
+        withCredentials([usernamePassword(credentialsId: 'git1',
+                                          usernameVariable: 'GIT_USER',
+                                          passwordVariable: 'GIT_TOKEN')]) {
+            sh '''
+                echo "Update Deployment File..."
+                echo "WORKSPACE is: $WORKSPACE"
+                cd "$WORKSPACE"
+
+                if [ ! -f .git/HEAD ]; then
+                    echo "ERROR: .git/HEAD not found. Aborting."
+                    exit 1
+                fi
+
+                git config user.email "manishaasha5@gmail.com"
+                git config user.name "manishasasi"
+
+                PREVIOUS_BUILD_NUMBER=$((BUILD_NUMBER - 1))
+                sed -i "s|manishasasi5/java-project:${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
+
+                git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/$GIT_USER_NAME/$GIT_REPO_NAME.git HEAD:main
+                git checkout -B main origin/main
+                git pull origin main
+                git add .
+                git commit -m "Update deployment image to version $BUILD_NUMBER" || echo "No changes to commit"
+                git push origin main
+            '''
         }
     }
 }
 
 
-        stage('Cleanup Trivy Cache') {
-            steps {
-                echo 'Cleaning up Trivy cache...'
-                sh 'rm -rf /var/lib/jenkins/.cache/trivy/*'
-            }                                                        
-        }
-        stage('Update Deployment File') {
-            environment {
-                GIT_REPO_NAME = "java-project"
-                GIT_USER_NAME = "manishasasi"
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'git1', usernameVariable: 'GIT_USER', 
-                passwordVariable: 'GIT_TOKEN')]) {
-                    sh """
-                        echo 'Update Deployment File...'
-                        git config user.email "manishaasha5@gmail.com"
-                        git config user.name "manishasasi"
-						PREVIOUS_BUILD_NUMBER=\$((BUILD_NUMBER - 1))
-                        sed -i "s|manishasasi5/java-project:\${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
-                        git pull origin main
-                        git add .
-                        git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "No changes to commit"
-                        git push https://\$GIT_USER:\$GIT_TOKEN@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
-                    """
-                }
-            }
-        }
-		stage('Remove Local Docker Image') {
+
+        stage('Remove Local Docker Image') {
             steps {
                 echo 'Removing Docker image from local...'
                 sh '''
-                   docker rmi ${DOCKER_IMAGE} || true
+                   docker rmi $DOCKER_IMAGE || true
                 '''
             }
         }
