@@ -23,13 +23,16 @@ pipeline {
         }
 
         stage('Git Checkout') {
-            steps {
-                echo "Checking out code from Git..."
-                git branch: 'main',
-                    url: 'https://github.com/manishasasi/java-project.git',
-                    credentialsId: 'git1'
-            }
+    steps {
+        dir("${WORKSPACE}") {
+            git branch: 'main',
+                url: 'https://github.com/manishasasi/java-project.git',
+                credentialsId: 'git1'
         }
+        sh 'git checkout -B main origin/main'
+    }
+}
+
         stage('Build & Test') {
             steps {
                 echo 'Building the project...'
@@ -129,10 +132,10 @@ pipeline {
         }
         
         stage('Update Deployment File') {
-            environment {
-                GIT_REPO_NAME = "java-project"
-                GIT_USER_NAME = "manishasasi"
-            }
+    environment {
+        GIT_REPO_NAME = "java-project"
+        GIT_USER_NAME = "manishasasi"
+    }
     steps {
         withCredentials([usernamePassword(credentialsId: 'git1',
                                           usernameVariable: 'GIT_USER',
@@ -147,6 +150,7 @@ pipeline {
                 sed -i "s|manishasasi5/java-project:${PREVIOUS_BUILD_NUMBER}|manishasasi5/java-project:${BUILD_NUMBER}|g" java-project-manifests/deployment.yml
 
                 git remote set-url origin https://$GIT_USER:$GIT_TOKEN@github.com/$GIT_USER_NAME/$GIT_REPO_NAME.git
+                git checkout -B main origin/main
                 git pull origin main
                 git add .
                 git commit -m "Update deployment image to version $BUILD_NUMBER" || echo "No changes to commit"
@@ -155,6 +159,7 @@ pipeline {
         }
     }
 }
+
 
         stage('Remove Local Docker Image') {
             steps {
