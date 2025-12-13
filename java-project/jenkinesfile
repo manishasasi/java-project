@@ -156,7 +156,16 @@ pipeline {
     }
 }
 
-
+stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying to Kubernetes cluster...'
+                sh '''
+                    kubectl apply -f java-project-manifests/deployment.yml -n ${default}
+                    kubectl apply -f java-project-manifests/service.yml -n ${default}
+                    kubectl rollout status deployment/java-project -n ${default}
+                '''
+            }
+        }
 
         stage('Remove Local Docker Image') {
             steps {
