@@ -20,7 +20,7 @@
     <distributionManagement>
         <repository>
             <id>simple-java-project</id>
-            <url>http://18.141.170.99:8081/repository/java-project/</url>
+            <url>http://52.77.14.249:8081/repository/java-project/</url>
         </repository>
     </distributionManagement>
 
