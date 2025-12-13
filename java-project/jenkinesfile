@@ -160,9 +160,9 @@ stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying to Kubernetes cluster...'
                 sh '''
-                    kubectl apply -f java-project-manifests/deployment.yml -n java-project
-					kubectl apply -f java-project-manifests/service.yml -n java-project
-					kubectl rollout status deployment/java-project -n java-project
+                    kubectl apply -f java-project-manifests/deployment.yml -n deployment
+					kubectl apply -f java-project-manifests/service.yml -n deployment
+					kubectl rollout status deployment/java-project -n deployment
                 '''
             }
         }
